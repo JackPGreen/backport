@@ -157,7 +157,7 @@ fi
 
 log_info "Creating new milestone if not exists..."
 gh extension install valeriobelli/gh-milestone
-gh milestone list --query "$SUFFIX" | grep -q "No milestones found" || gh milestone create --title "$SUFFIX"
+gh milestone list --query "$SUFFIX" | grep -q "No milestones found" && gh milestone create --title "$SUFFIX"
 
 log_info "Creating new PR..."
 gh pr create --base "$BASE_BRANCH" --title "$NEW_COMMIT_MSG" \
