@@ -137,6 +137,8 @@ fi
 
 #log_info "Pushing $BRANCH_NAME to origin"
 git push
+git push origin
+git push upstream
 
 ORIGINAL_PR_URL="https://github.com/${REPO_UPSTREAM}/pull/${ORIGINAL_PR_NUMBER:-<pr-number>}"
 BASE_BRANCH="$SUFFIX"
