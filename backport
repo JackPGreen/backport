@@ -156,6 +156,7 @@ if [ -n "$ORIGINAL_PR_NUMBER" ]; then
   fi
 fi
 log_info "Creating new PR..."
+gh pr create --assignee "@me"
 gh pr create --base "$BASE_BRANCH" --title "$NEW_COMMIT_MSG" \
   --body "Backport of $ORIGINAL_PR_URL$(echo -e "\n\n")$PR_BODY" \
-  --assignee "@me" $REVIEWERS_ARG "${LABELS_ARG[@]}" --milestone "$SUFFIX"
+  --assignee "${GITHUB_ACTOR:-@me}" $REVIEWERS_ARG "${LABELS_ARG[@]}" --milestone "$SUFFIX"
