@@ -135,19 +135,23 @@ if [ "$LOCAL" = "yes" ]; then
   exit 0
 fi
 
-#log_info "Pushing $BRANCH_NAME to origin"
-# https://github.com/cli/cli/issues/1718#issuecomment-748292216
-git push -u origin HEAD
+if [ "$CI" = "true" ]; then
+  #log_info "Pushing $BRANCH_NAME to origin"
+  # https://github.com/cli/cli/issues/1718#issuecomment-748292216
+  git push -u origin HEAD
+fi
 
 ORIGINAL_PR_URL="https://github.com/${REPO_UPSTREAM}/pull/${ORIGINAL_PR_NUMBER:-<pr-number>}"
 BASE_BRANCH="$SUFFIX"
 PR_BODY=$(\cat .github/pull_request_template.md 2>/dev/null || true)
 if [ -n "$ORIGINAL_PR_NUMBER" ]; then
-#  --reviewer flag doesn't work with --web
-#  REVIEWERS=$(gh api repos/$REPO_UPSTREAM/pulls/$ORIGINAL_PR_NUMBER/reviews | jq '.[] | select(.state == "APPROVED") | .user.login' | jq -c -r -s '. | unique | join(",")')
-#  if [ -n "$REVIEWERS" ]; then
-#    REVIEWERS_ARG="--reviewer $REVIEWERS"
-#  fi
+  if [ "$CI" = "true" ]; then
+    #  --reviewer flag doesn't work with --web
+    REVIEWERS=$(gh api repos/$REPO_UPSTREAM/pulls/$ORIGINAL_PR_NUMBER/reviews | jq '.[] | select(.state == "APPROVED") | .user.login' | jq -c -r -s '. | unique | join(",")')
+    if [ -n "$REVIEWERS" ]; then
+      REVIEWERS_ARG="--reviewer $REVIEWERS"
+    fi
+  fi
   PR_BODY=$(gh api repos/$REPO_UPSTREAM/pulls/$ORIGINAL_PR_NUMBER | jq -r '"\n\n" + .body')
 
   LABELS=$(gh api repos/$REPO_UPSTREAM/pulls/$ORIGINAL_PR_NUMBER | jq '.labels[].name' | jq -c -r -s '. | join(",")')
@@ -158,4 +162,5 @@ fi
 log_info "Creating new PR..."
 gh pr create --base "$BASE_BRANCH" --title "$NEW_COMMIT_MSG" \
   --body "Backport of $ORIGINAL_PR_URL$(echo -e "\n\n")$PR_BODY" \
-  --assignee "${GITHUB_ACTOR:-@me}" $REVIEWERS_ARG "${LABELS_ARG[@]}" --milestone "$SUFFIX"
+  --assignee "${GITHUB_ACTOR:-@me}" $REVIEWERS_ARG "${LABELS_ARG[@]}" --milestone "$SUFFIX" \
+  $( [ "$CI" != true ] && echo "--web" )
