@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -e
+set -ex
 
 function usage() {
   echo "This tool backports the latest commit pointed by <source-ref> on the top of <target-branch> by crating a new branch."
@@ -168,5 +168,5 @@ gh milestone list --query "$SUFFIX" | grep -q "No milestones found" && gh milest
 log_info "Creating new PR..."
 gh pr create --base "$BASE_BRANCH" --title "$NEW_COMMIT_MSG" \
   --body "Backport of $ORIGINAL_PR_URL$(echo -e "\n\n")$PR_BODY" \
-  --assignee "${GITHUB_ACTOR:-@me}" "$REVIEWERS_ARG" "${LABELS_ARG[@]}" --milestone "$SUFFIX" \
-  "$( [ "$CI" != true ] && echo "--web" )"
+  --assignee "${GITHUB_ACTOR:-@me}" $REVIEWERS_ARG "${LABELS_ARG[@]}" --milestone "$SUFFIX" \
+  $( [ "$CI" != true ] && echo "--web" )
