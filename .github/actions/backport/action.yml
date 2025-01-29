@@ -25,6 +25,7 @@ runs:
   steps:
     - 
     - name: Print accessible environment variables
+      shell: ${{ env.shell }}
       env:
         GITHUB_CONTEXT: ${{ toJson(github) }}
       run: |
