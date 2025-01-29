@@ -23,7 +23,6 @@ env:
 runs:
   using: composite
   steps:
-    - 
     - name: Print accessible environment variables
       shell: ${{ env.shell }}
       env:
