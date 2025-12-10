@@ -26,6 +26,8 @@ jobs:
       - name: Extract PR metadata from merged 'pull_request' event
         if: github.event.pull_request.merged && (github.event_name == 'pull_request' || github.event_name == 'pull_request_target')
         run: |
+          set -x
+
           echo "number=${{ github.event.number }}" >> ${GITHUB_ENV}
           echo "labels=$(jq --compact-output '[.[] | .name]' <<< '${{ toJson(github.event.pull_request.labels) }}')" >> ${GITHUB_ENV}
           echo "merge_commit_sha=${{ github.event.pull_request.merge_commit_sha }}" >> ${GITHUB_ENV}
@@ -33,6 +35,8 @@ jobs:
       - name: Extract PR metadata from 'push' event
         if: github.event_name == 'push'
         run: |
+          set -x
+
           response=$(gh api \
             -H "Accept: application/vnd.github+json" \
             /repos/${GITHUB_REPOSITORY}/commits/${GITHUB_SHA}/pulls)
