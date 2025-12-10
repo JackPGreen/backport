@@ -26,8 +26,6 @@ jobs:
       - name: Extract PR metadata from merged 'pull_request' event
         if: github.event.pull_request.merged && (github.event_name == 'pull_request' || github.event_name == 'pull_request_target')
         run: |
-          set -x
-
           echo "number=${{ github.event.number }}" >> ${GITHUB_ENV}
           echo "labels=$(jq --compact-output '[.[] | .name]' <<< '${{ toJson(github.event.pull_request.labels) }}')" >> ${GITHUB_ENV}
           echo "merge_commit_sha=${{ github.event.pull_request.merge_commit_sha }}" >> ${GITHUB_ENV}
@@ -36,10 +34,24 @@ jobs:
         if: github.event_name == 'push'
         run: |
           set -x
+          source /dev/stdin <<< "$(curl --silent https://raw.githubusercontent.com/hazelcast/github-actions-common-scripts/main/logging.functions.sh)"
 
-          response=$(gh api \
-            -H "Accept: application/vnd.github+json" \
-            /repos/${GITHUB_REPOSITORY}/commits/${GITHUB_SHA}/pulls)
+          # Immediately after a commit, sometimes the API returns no results, so poll for valid values
+          while :
+          do
+            response=$(gh api \
+              -H "Accept: application/vnd.github+json" \
+              /repos/${GITHUB_REPOSITORY}/commits/${GITHUB_SHA}/pulls)
+
+            echodebug "API returned: ${response}"
+
+            if [[ $(jq 'length' <<< "${response}") -gt 0 ]]; then
+              break
+            else
+              echo "API returned no results, retrying..."
+              sleep 3
+            fi
+          done
 
           echo "number=$(jq --raw-output '.[0].number' <<< "${response}")" >> ${GITHUB_ENV}
           echo "labels=$(jq --raw-output --compact-output '.[0].labels | map(.name)' <<< "${response}")" >> ${GITHUB_ENV}
