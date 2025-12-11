@@ -126,7 +126,7 @@ jobs:
 
           # Add explicit "upstream" remote as required by backport script
           git remote add upstream "${{ github.event.repository.clone_url }}"
-          git fetch upstream --unshallow "${{ matrix.branch }}"
+          git fetch upstream "${{ matrix.branch }}"
 
           backport_target_branch=upstream/"${{ matrix.branch }}"
           echodebug "Running backport script to backport "${{ needs.get-current-pr.outputs.merge_commit_sha }}" into \"${backport_target_branch}\""
