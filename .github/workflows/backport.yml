@@ -24,7 +24,7 @@ jobs:
       merge_commit_sha: ${{ env.merge_commit_sha }}
     steps:
       - name: Extract PR metadata from merged 'pull_request' event
-        if: github.event.pull_request.merged && (github.event_name == 'pull_request' || github.event_name == 'pull_request_target')
+        if: github.event_name == 'pull_request' || github.event_name == 'pull_request_target'
         run: |
           # If the action was triggered by labelling a PR, we can simply pull the PR metadata directly from the event
           echo "number=${{ github.event.number }}" >> ${GITHUB_ENV}
