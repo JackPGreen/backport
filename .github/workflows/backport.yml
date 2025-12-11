@@ -108,21 +108,6 @@ jobs:
         env:
           BACKPORT_PREFIX: ${{ inputs.BACKPORT_PREFIX }}
 
-      - name: Remove backport labels (${{ steps.parse-labels.outputs.backport_labels }})
-        if: steps.parse-labels.outputs.backport_labels != '[]'
-        run: |
-          set -o errexit -o nounset -o pipefail ${RUNNER_DEBUG:+-x}
-
-          mapfile -t labels < <(jq --raw-output '.[]' <<< '${{ steps.parse-labels.outputs.backport_labels }}')
-
-          for backport_label in "${labels[@]}"; do
-            gh pr edit "${{ needs.get-current-pr.outputs.number }}" \
-              --repo ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY} \
-              --remove-label "${backport_label}"
-          done
-        env:
-          GH_TOKEN: ${{ github.token }}
-
   backport:
     name: Backport to "${{ matrix.branch }}"
     if: needs.parse-pr.outputs.backport-branches != '[]'
