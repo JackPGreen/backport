@@ -37,9 +37,17 @@ jobs:
           source /dev/stdin <<< "$(curl --silent https://raw.githubusercontent.com/hazelcast/github-actions-common-scripts/main/logging.functions.sh)"
 
           # If the action was triggered by a commit being pushed, we must resolve the PR metadata via the GitHub API
+          #
+          # The API mapping commits to a PR is eventually consistent
+          #
+          # GitHub support have confirmed it may take up to 30 seconds for valid results to be returned - https://support.github.com/ticket/enterprise/4658/3953542
+          # As this action is triggered immediately after merge, poll for completion
+          #
+          # A alternative workaround would be to trigger the backport action via the closure of a merged `pull_request`, rather than on `push`
+          # But this would make branch specification (especially the wildcard/glob format) very tricky
+          # As such, this is an acceptable, documented workaround
 
-          # Immediately after a commit, sometimes the API returns no results, so poll for valid values
-          max_iterations=10
+          max_iterations=30
           iteration=0
 
           while [[ ${iteration} -le ${max_iterations} ]]; do
