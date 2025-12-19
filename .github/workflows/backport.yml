@@ -81,6 +81,9 @@ jobs:
           set -o errexit -o nounset -o pipefail ${RUNNER_DEBUG:+-x}
           source /dev/stdin <<< "$(curl --silent https://raw.githubusercontent.com/hazelcast/github-actions-common-scripts/main/logging.functions.sh)"
 
+          # GitHub labels are case-insensitive, so our comparisons should be, too
+          shopt -s nocasematch
+
           backport_labels=()
           backport_branches=()
 
