@@ -98,8 +98,8 @@ jobs:
             fi
           done < <(gh api \
               -H "Accept: application/vnd.github+json" \
-              /repos/${GITHUB_REPOSITORY}/issues/${{ needs.get-current-pr.outputs.number }}/labels \
-              --jq '.[].name')
+              /repos/${GITHUB_REPOSITORY}/pulls/${{ needs.get-current-pr.outputs.number }} \
+              --jq '.labels.[].name')
 
           function array_to_json() {
             jq --null-input --compact-output '$ARGS.positional' --args "$@"
