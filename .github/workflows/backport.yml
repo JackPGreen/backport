@@ -96,7 +96,10 @@ jobs:
             else
               echodebug "Skipped label \"${label}\" (not a backport)"
             fi
-          done < <(gh api /repos/hazelcast/hazelcast-mono/issues/${{ needs.get-current-pr.outputs.number }}/labels --jq '.[].name')
+          done < <(gh api \
+              -H "Accept: application/vnd.github+json" \
+              /repos/${GITHUB_REPOSITORY}/issues/${{ needs.get-current-pr.outputs.number }}/labels \
+              --jq '.[].name')
 
           function array_to_json() {
             jq --null-input --compact-output '$ARGS.positional' --args "$@"
