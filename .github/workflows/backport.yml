@@ -112,6 +112,10 @@ jobs:
         env:
           BACKPORT_PREFIX: ${{ inputs.BACKPORT_PREFIX }}
 
+      - name: Delay
+        run: |
+          sleep 60
+
       - name: Remove backport labels (${{ steps.parse-labels.outputs.backport_labels }})
         if: steps.parse-labels.outputs.backport_labels != '[]'
         run: |
